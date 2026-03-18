@@ -11,9 +11,6 @@ export function generateRecommendation(
   const deposit = Number(answers.deposit) || 0;
   const budget = Number(answers.propertyBudget) || 0;
   const hasGuarantor = answers.hasGuarantor === "yes";
-  const guarantorStrong =
-    answers.guarantorEquity === "outright" || answers.guarantorEquity === "equity";
-  const guarantorFormalised = answers.guarantorFormalised === "yes";
   const locationFlexible = answers.locationFlexible === "yes";
   const rentOk = answers.rentWhileBuying === "yes" || answers.rentWhileBuying === "maybe";
   const employment = answers.employmentStatus as string;
@@ -84,26 +81,26 @@ export function generateRecommendation(
   }
 
   // ── Guarantor ──────────────────────────────────────────────────────────────
-  const effectiveGuarantor = hasGuarantor && guarantorStrong;
-  if (effectiveGuarantor) {
+  if (hasGuarantor) {
     schemes.push({
       name: "Family Guarantee",
-      description: guarantorFormalised
-        ? "Your guarantor has sought independent advice — you're ready to proceed. A family guarantee can let you borrow with minimal deposit and avoid LMI."
-        : "A guarantor can help you buy with minimal deposit and avoid LMI. Your guarantor will still need independent legal and financial advice before signing.",
-      amount: "Potential to buy with 0–5% deposit",
+      description:
+        "A family guarantee allows a close relative (usually a parent) to use equity in their own property to support your loan. " +
+        "This can let you buy with a smaller deposit and avoid Lenders Mortgage Insurance. " +
+        "Your guarantor will need independent legal and financial advice before signing — your broker can guide you through this.",
+      amount: "Potential to buy with as little as 5% deposit, no LMI",
     });
-    details.push(`✅ Strong guarantor available — this can significantly reduce your required deposit.`);
+    details.push(`✅ Guarantor available — this can significantly reduce your required deposit and eliminate LMI.`);
   }
 
   // ── Deposit analysis ───────────────────────────────────────────────────────
   const depositPct = budget > 0 ? deposit / budget : 0;
   const depositGap = budget > 0 ? Math.max(0, budget * 0.2 - deposit) : 0;
 
-  if (depositPct < 0.05 && !effectiveGuarantor && !fhgEligible) {
+  if (depositPct < 0.05 && !hasGuarantor && !fhgEligible) {
     details.push(`⚠️ Your deposit of ${formatCurrency(deposit)} is less than 5% of your target price. You may need to save more or explore guarantor options.`);
   } else if (depositPct >= 0.05 && depositPct < 0.2) {
-    if (!fhgEligible && !effectiveGuarantor) {
+    if (!fhgEligible && !hasGuarantor) {
       details.push(`⚠️ With ${Math.round(depositPct * 100)}% deposit you will likely need to pay Lenders Mortgage Insurance unless you qualify for the First Home Guarantee or have a guarantor.`);
     }
   } else if (depositPct >= 0.2) {
@@ -118,7 +115,7 @@ export function generateRecommendation(
   // ── DECISION LOGIC ─────────────────────────────────────────────────────────
   // Can they buy owner-occupied in their state?
   const canBuyOwnerOccupied =
-    (fhgEligible || effectiveGuarantor || depositPct >= 0.05) && budget <= stateData.fhgCapCity * 1.5;
+    (fhgEligible || hasGuarantor || depositPct >= 0.05) && budget <= stateData.fhgCapCity * 1.5;
 
   // Is interstate investing relevant?
   const interstateMakesSense =
@@ -154,7 +151,7 @@ export function generateRecommendation(
     budget,
     deposit,
     fhgEligible,
-    effectiveGuarantor,
+    hasGuarantor,
     isFirstHome,
     interstateMakesSense,
   });
@@ -177,17 +174,17 @@ function buildSummary(
     budget: number;
     deposit: number;
     fhgEligible: boolean;
-    effectiveGuarantor: boolean;
+    hasGuarantor: boolean;
     isFirstHome: boolean;
     interstateMakesSense: boolean;
   }
 ): string {
-  const { stateData, budget, deposit, fhgEligible, effectiveGuarantor, isFirstHome } = ctx;
+  const { stateData, budget, deposit, fhgEligible, hasGuarantor, isFirstHome } = ctx;
 
   if (primary === "owner_occupied") {
     const how = fhgEligible
       ? "using the First Home Guarantee (5% deposit, no LMI)"
-      : effectiveGuarantor
+      : hasGuarantor
       ? "with the support of your family guarantor"
       : deposit >= budget * 0.2
       ? "with your 20%+ deposit — no LMI required"

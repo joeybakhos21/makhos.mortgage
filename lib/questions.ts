@@ -119,45 +119,12 @@ export const QUESTIONS: Record<QuestionId, Question> = {
   hasGuarantor: {
     id: "hasGuarantor",
     title: "Do you have a family member who could act as guarantor?",
-    subtitle: "A guarantor uses equity in their own property to help you avoid LMI or borrow more. Usually a parent or close family member.",
+    subtitle: "A guarantor uses equity in their own property to help you avoid LMI or borrow with a smaller deposit. Usually a parent or close family member.",
     type: "single",
     options: [
       { value: "yes", label: "Yes – a family member has offered to help", icon: "🤝" },
       { value: "maybe", label: "Possibly – I haven't asked yet", icon: "🤔" },
       { value: "no", label: "No guarantor available", icon: "❌" },
-    ],
-    next: (answers) => {
-      if (answers.hasGuarantor === "yes") return "guarantorEquity";
-      return "propertyBudget";
-    },
-  },
-
-  guarantorEquity: {
-    id: "guarantorEquity",
-    title: "Does your guarantor own their home with sufficient equity?",
-    subtitle: "They typically need at least 20% equity in their property, or own it outright, to provide a useful guarantee.",
-    type: "single",
-    options: [
-      { value: "outright", label: "Yes – they own their home outright (no mortgage)", icon: "🏠" },
-      { value: "equity", label: "Yes – they have significant equity (20%+)", icon: "📈" },
-      { value: "low", label: "Unsure or low equity", icon: "❓" },
-    ],
-    next: (answers) => {
-      if (answers.guarantorEquity === "outright" || answers.guarantorEquity === "equity") {
-        return "guarantorFormalised";
-      }
-      return "propertyBudget";
-    },
-  },
-
-  guarantorFormalised: {
-    id: "guarantorFormalised",
-    title: "Has your guarantor had independent legal and financial advice?",
-    subtitle: "Lenders require guarantors to seek independent advice before signing. This protects both parties.",
-    type: "single",
-    options: [
-      { value: "yes", label: "Yes – they have obtained independent advice", icon: "✅" },
-      { value: "no", label: "Not yet – we haven't started the process", icon: "⏳" },
     ],
     next: () => "propertyBudget",
   },

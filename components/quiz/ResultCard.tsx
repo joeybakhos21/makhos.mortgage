@@ -1,7 +1,47 @@
 "use client";
 
-import { RecommendationResult } from "@/types/quiz";
+import { RecommendationResult, QuestionId, AnswerValue } from "@/types/quiz";
 import { formatCurrency } from "@/lib/stateData";
+
+const RECOMMENDATION_LABELS = {
+  owner_occupied: "Buy owner-occupied",
+  investment_local: "Buy investment (local)",
+  investment_interstate: "Buy investment (interstate)",
+};
+
+function buildCalendlyUrl(
+  answers: Partial<Record<QuestionId, AnswerValue>>,
+  recommendation: string
+): string {
+  const state = answers.state ?? "—";
+  const fhb = answers.firstHomeBuyer === "yes" ? "Yes" : "No";
+  const citizenship = answers.citizenship === "citizen" ? "Citizen" : answers.citizenship === "pr" ? "PR" : "Visa";
+  const buying = answers.buyingWith === "sole" ? "Solo" : answers.buyingWith === "partner" ? "With partner" : "With friend/family";
+  const income = answers.income ? formatCurrency(Number(answers.income)) : "—";
+  const employment = answers.employmentStatus ?? "—";
+  const deposit = answers.deposit ? formatCurrency(Number(answers.deposit)) : "—";
+  const budget = answers.propertyBudget ? formatCurrency(Number(answers.propertyBudget)) : "—";
+  const guarantor = answers.hasGuarantor === "yes" ? "Yes" : answers.hasGuarantor === "maybe" ? "Possible" : "No";
+  const location = answers.locationFlexible === "yes" ? "Open to interstate" : answers.locationFlexible === "regional" ? "Open to regional" : "Local only";
+  const rec = RECOMMENDATION_LABELS[recommendation as keyof typeof RECOMMENDATION_LABELS] ?? recommendation;
+
+  const summary = [
+    `State: ${state}`,
+    `FHB: ${fhb}`,
+    `Residency: ${citizenship}`,
+    `Buying: ${buying}`,
+    `Income: ${income}`,
+    `Employment: ${employment}`,
+    `Deposit: ${deposit}`,
+    `Budget: ${budget}`,
+    `Guarantor: ${guarantor}`,
+    `Location pref: ${location}`,
+    `Quiz result: ${rec}`,
+  ].join(" | ");
+
+  const params = new URLSearchParams({ utm_content: summary });
+  return `https://calendly.com/jbakhos/30min?${params.toString()}`;
+}
 
 const RECOMMENDATION_META = {
   owner_occupied: {
@@ -32,11 +72,13 @@ const RECOMMENDATION_META = {
 
 interface Props {
   result: RecommendationResult;
+  answers: Partial<Record<QuestionId, AnswerValue>>;
   onRestart: () => void;
 }
 
-export default function ResultCard({ result, onRestart }: Props) {
+export default function ResultCard({ result, answers, onRestart }: Props) {
   const primary = RECOMMENDATION_META[result.primary];
+  const calendlyUrl = buildCalendlyUrl(answers, result.primary);
 
   return (
     <div className="space-y-6">
@@ -131,7 +173,7 @@ export default function ResultCard({ result, onRestart }: Props) {
           Book a free strategy session and we&apos;ll walk through your exact numbers together.
         </p>
         <a
-          href="https://calendly.com/jbakhos/30min"
+          href={calendlyUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block bg-white text-indigo-700 font-semibold px-6 py-3 rounded-xl hover:bg-indigo-50 transition-colors text-sm shadow"

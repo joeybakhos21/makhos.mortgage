@@ -9,7 +9,7 @@ import QuizCard from "./QuizCard";
 import ResultCard from "./ResultCard";
 
 // Estimate total questions for progress bar (varies by path, use approximate)
-const ESTIMATED_TOTAL = 11;
+const ESTIMATED_TOTAL = 9;
 
 function initialState(): QuizState {
   return {
@@ -67,7 +67,7 @@ export default function Quiz() {
     const result = generateRecommendation(quizState.answers);
     return (
       <div className="max-w-lg mx-auto px-4 py-8">
-        <ResultCard result={result} onRestart={handleRestart} />
+        <ResultCard result={result} answers={quizState.answers} onRestart={handleRestart} />
       </div>
     );
   }
