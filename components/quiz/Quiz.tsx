@@ -8,8 +8,6 @@ import ProgressBar from "./ProgressBar";
 import QuizCard from "./QuizCard";
 import ResultCard from "./ResultCard";
 
-// Estimate total questions for progress bar (varies by path, use approximate)
-const ESTIMATED_TOTAL = 9;
 
 function initialState(): QuizState {
   return {
@@ -61,7 +59,6 @@ export default function Quiz() {
   }
 
   const currentQuestion = QUESTIONS[quizState.currentQuestionId];
-  const stepNumber = quizState.history.length + 1;
 
   if (quizState.completed) {
     const result = generateRecommendation(quizState.answers);
@@ -75,7 +72,7 @@ export default function Quiz() {
   return (
     <div className="max-w-lg mx-auto px-4 py-8">
       <div className="mb-6">
-        <ProgressBar current={stepNumber} total={ESTIMATED_TOTAL} />
+        <ProgressBar stepsCompleted={quizState.history.length} />
       </div>
       <QuizCard
         question={currentQuestion}
