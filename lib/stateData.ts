@@ -1,15 +1,15 @@
 import { State, StateData } from "@/types/quiz";
 
-// Data current as of 2025 financial year
+// Property price caps effective 1 October 2025 (Housing Australia)
 // First Home Guarantee (FHG) - 5% deposit, no LMI, government guarantees 15%
-// Income caps for FHG were removed from 1 July 2024 — no income test applies
+// No income caps apply (removed 1 July 2024)
 // Stamp duty exemptions/concessions for first home buyers
 
 export const STATE_DATA: Record<State, StateData> = {
   NSW: {
     name: "New South Wales",
-    fhgCapCity: 900000,
-    fhgCapRegional: 750000,
+    fhgCapCity: 1500000,   // Capital city + Illawarra, Newcastle/Lake Macquarie
+    fhgCapRegional: 800000,
     stampDutyExemptionCap: 800000,
     stampDutyConcessionCap: 1000000,
     stampDutyNote: "Full exemption on properties up to $800k, concession up to $1M for first home buyers (new or existing homes).",
@@ -18,7 +18,7 @@ export const STATE_DATA: Record<State, StateData> = {
   },
   VIC: {
     name: "Victoria",
-    fhgCapCity: 800000,
+    fhgCapCity: 950000,    // Capital city + Geelong
     fhgCapRegional: 650000,
     stampDutyExemptionCap: 600000,
     stampDutyConcessionCap: 750000,
@@ -28,8 +28,8 @@ export const STATE_DATA: Record<State, StateData> = {
   },
   QLD: {
     name: "Queensland",
-    fhgCapCity: 700000,
-    fhgCapRegional: 550000,
+    fhgCapCity: 1000000,   // Capital city + Gold Coast, Sunshine Coast
+    fhgCapRegional: 700000,
     stampDutyExemptionCap: null,
     stampDutyConcessionCap: 700000,
     stampDutyNote: "Concessional transfer duty rate on properties up to $700k. No full exemption but significant savings available.",
@@ -38,8 +38,8 @@ export const STATE_DATA: Record<State, StateData> = {
   },
   SA: {
     name: "South Australia",
-    fhgCapCity: 600000,
-    fhgCapRegional: 450000,
+    fhgCapCity: 900000,
+    fhgCapRegional: 500000,
     stampDutyExemptionCap: null,
     stampDutyConcessionCap: null,
     stampDutyNote: "No general stamp duty concession for first home buyers — stamp duty applies at standard rates.",
@@ -48,8 +48,8 @@ export const STATE_DATA: Record<State, StateData> = {
   },
   WA: {
     name: "Western Australia",
-    fhgCapCity: 450000,
-    fhgCapRegional: 400000,
+    fhgCapCity: 850000,
+    fhgCapRegional: 600000,
     stampDutyExemptionCap: 430000,
     stampDutyConcessionCap: 530000,
     stampDutyNote: "Full stamp duty exemption on properties up to $430k, concession up to $530k.",
@@ -58,8 +58,8 @@ export const STATE_DATA: Record<State, StateData> = {
   },
   TAS: {
     name: "Tasmania",
-    fhgCapCity: 600000,
-    fhgCapRegional: 450000,
+    fhgCapCity: 700000,
+    fhgCapRegional: 550000,
     stampDutyExemptionCap: 400000,
     stampDutyConcessionCap: null,
     stampDutyNote: "50% stamp duty concession on established homes up to $400k for first home buyers.",
@@ -68,8 +68,8 @@ export const STATE_DATA: Record<State, StateData> = {
   },
   ACT: {
     name: "Australian Capital Territory",
-    fhgCapCity: 750000,
-    fhgCapRegional: 750000,
+    fhgCapCity: 1000000,   // Single cap — no regional split
+    fhgCapRegional: 1000000,
     stampDutyExemptionCap: null,
     stampDutyConcessionCap: null,
     stampDutyNote: "Stamp duty (conveyance duty) concessions/exemptions available based on income thresholds under the Home Buyer Concession Scheme (HBCS).",
@@ -78,7 +78,7 @@ export const STATE_DATA: Record<State, StateData> = {
   },
   NT: {
     name: "Northern Territory",
-    fhgCapCity: 600000,
+    fhgCapCity: 600000,    // Single cap currently; Darwin splits to $750k from 1 July 2026
     fhgCapRegional: 600000,
     stampDutyExemptionCap: null,
     stampDutyConcessionCap: null,
