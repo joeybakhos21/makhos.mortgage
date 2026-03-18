@@ -138,7 +138,24 @@ export const QUESTIONS: Record<QuestionId, Question> = {
     max: 3000000,
     step: 25000,
     prefix: "$",
-    next: () => "locationFlexible",
+    next: () => "currentLiving",
+  },
+
+  currentLiving: {
+    id: "currentLiving",
+    title: "What is your current living situation?",
+    subtitle: "This helps us understand how urgently you need your own place and how much flexibility you have.",
+    type: "single",
+    options: [
+      { value: "living_home", label: "Living at home (family / parents)", icon: "👨‍👩‍👦", description: "Little to no rent — maximum savings potential" },
+      { value: "cheap_rent", label: "Renting cheaply (well below market)", icon: "🏠", description: "Manageable rent — some flexibility on timing" },
+      { value: "expensive_rent", label: "Paying market or expensive rent", icon: "💸", description: "High rent — owning sooner reduces ongoing costs" },
+    ],
+    next: (answers) => {
+      // If paying expensive rent, skip the interstate rentvesting path — owning makes more sense
+      if (answers.currentLiving === "expensive_rent") return null;
+      return "locationFlexible";
+    },
   },
 
   locationFlexible: {
@@ -159,12 +176,12 @@ export const QUESTIONS: Record<QuestionId, Question> = {
 
   rentWhileBuying: {
     id: "rentWhileBuying",
-    title: "Would you be happy to rent where you live while an investment property builds equity?",
-    subtitle: "This is the 'rentvesting' strategy — it can get you into the market sooner in a growth area while you continue living in your preferred location.",
+    title: "Would you continue renting where you live while your investment property builds equity?",
+    subtitle: "Rentvesting lets you buy in a growth market now and live where you want — often cheaper than paying rent AND a mortgage in an expensive area.",
     type: "single",
     options: [
-      { value: "yes", label: "Yes – if it helps me get into the market sooner", icon: "📊" },
-      { value: "maybe", label: "Maybe – I'd want to understand the numbers first", icon: "🔢" },
+      { value: "yes", label: "Yes – happy to keep renting while investing", icon: "📊" },
+      { value: "maybe", label: "Maybe – I'd want to see the numbers first", icon: "🔢" },
       { value: "no", label: "No – I want to live in the property I buy", icon: "🏡" },
     ],
     next: () => null,

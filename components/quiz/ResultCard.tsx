@@ -22,6 +22,7 @@ function buildCalendlyUrl(
   const deposit = answers.deposit ? formatCurrency(Number(answers.deposit)) : "—";
   const budget = answers.propertyBudget ? formatCurrency(Number(answers.propertyBudget)) : "—";
   const guarantor = answers.hasGuarantor === "yes" ? "Yes" : answers.hasGuarantor === "maybe" ? "Possible" : "No";
+  const living = answers.currentLiving === "living_home" ? "At home" : answers.currentLiving === "cheap_rent" ? "Cheap rent" : answers.currentLiving === "expensive_rent" ? "Expensive rent" : "—";
   const location = answers.locationFlexible === "yes" ? "Open to interstate" : answers.locationFlexible === "regional" ? "Open to regional" : "Local only";
   const rec = RECOMMENDATION_LABELS[recommendation as keyof typeof RECOMMENDATION_LABELS] ?? recommendation;
 
@@ -35,6 +36,7 @@ function buildCalendlyUrl(
     `Deposit: ${deposit}`,
     `Budget: ${budget}`,
     `Guarantor: ${guarantor}`,
+    `Living: ${living}`,
     `Location pref: ${location}`,
     `Quiz result: ${rec}`,
   ].join(" | ");

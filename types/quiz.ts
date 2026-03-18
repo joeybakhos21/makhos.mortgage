@@ -8,6 +8,7 @@ export type QuestionId =
   | "deposit"
   | "hasGuarantor"
   | "propertyBudget"
+  | "currentLiving"
   | "locationFlexible"
   | "rentWhileBuying"
   | "employmentStatus"

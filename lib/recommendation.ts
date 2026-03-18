@@ -11,6 +11,9 @@ export function generateRecommendation(
   const deposit = Number(answers.deposit) || 0;
   const budget = Number(answers.propertyBudget) || 0;
   const hasGuarantor = answers.hasGuarantor === "yes";
+  const currentLiving = answers.currentLiving as string | undefined;
+  const livingAtHome = currentLiving === "living_home";
+  const payingExpensiveRent = currentLiving === "expensive_rent";
   const locationFlexible = answers.locationFlexible === "yes";
   const rentOk = answers.rentWhileBuying === "yes" || answers.rentWhileBuying === "maybe";
   const employment = answers.employmentStatus as string;
@@ -112,6 +115,18 @@ export function generateRecommendation(
     details.push(`ℹ️ As a ${employment === "selfemployed" ? "self-employed" : "contractor"} borrower, most lenders require 2 years of tax returns. Some specialist lenders offer 1-year ABN or alt-doc products — speak to a broker.`);
   }
 
+  // ── Living situation note ───────────────────────────────────────────────────
+  if (livingAtHome) {
+    details.push(`🏠 Living at home — low holding costs mean you can afford to be strategic. Investing first is often the smart play here.`);
+  } else if (payingExpensiveRent) {
+    details.push(`💸 Paying expensive rent — every month spent renting at market rates is money that could be going toward your own mortgage. Buying owner-occupied sooner reduces this drag.`);
+  }
+
+  // ── Employment note ────────────────────────────────────────────────────────
+  if (employment === "selfemployed" || employment === "contractor") {
+    details.push(`ℹ️ As a ${employment === "selfemployed" ? "self-employed" : "contractor"} borrower, most lenders require 2 years of tax returns. Some specialist lenders offer 1-year ABN or alt-doc products — speak to a broker.`);
+  }
+
   // ── DECISION LOGIC ─────────────────────────────────────────────────────────
   // Can they buy owner-occupied in their state?
   const canBuyOwnerOccupied =
@@ -119,17 +134,35 @@ export function generateRecommendation(
 
   // Is interstate investing relevant?
   const interstateMakesSense =
+    !payingExpensiveRent && // If rent is expensive, prioritise buying to live in
     locationFlexible && rentOk && (stateData.affordableInterstateBuying?.length ?? 0) > 0;
 
-  // Is local investment relevant? (if budget over FHG cap but can still buy something cheaper as investment)
+  // Is local investment relevant?
   const localInvestmentMakesSense =
-    !isFirstHome || // Not first home — investment is always valid
-    (isFirstHome && budget > stateData.fhgCapCity); // Budget over FHG cap, consider lower-priced investment
+    !isFirstHome ||
+    (isFirstHome && budget > stateData.fhgCapCity);
+
+  // Living at home with a guarantor = strong signal to invest first
+  const investFirstSignal = livingAtHome && hasGuarantor;
 
   let primary: "owner_occupied" | "investment_local" | "investment_interstate";
   const secondaries: ("owner_occupied" | "investment_local" | "investment_interstate")[] = [];
 
-  if (canBuyOwnerOccupied && (!interstateMakesSense || depositPct >= 0.1)) {
+  if (investFirstSignal) {
+    // Living at home + guarantor: almost always invest first
+    if (interstateMakesSense) {
+      primary = "investment_interstate";
+      if (localInvestmentMakesSense) secondaries.push("investment_local");
+      if (canBuyOwnerOccupied) secondaries.push("owner_occupied");
+    } else {
+      primary = "investment_local";
+      if (canBuyOwnerOccupied) secondaries.push("owner_occupied");
+    }
+  } else if (payingExpensiveRent && canBuyOwnerOccupied) {
+    // Expensive rent: strongly favour owner-occupied to stop the rent bleed
+    primary = "owner_occupied";
+    if (localInvestmentMakesSense && budget > stateData.fhgCapCity) secondaries.push("investment_local");
+  } else if (canBuyOwnerOccupied && (!interstateMakesSense || depositPct >= 0.1)) {
     primary = "owner_occupied";
     if (interstateMakesSense) secondaries.push("investment_interstate");
     if (localInvestmentMakesSense && budget > stateData.fhgCapCity) secondaries.push("investment_local");
@@ -154,6 +187,8 @@ export function generateRecommendation(
     hasGuarantor,
     isFirstHome,
     interstateMakesSense,
+    livingAtHome,
+    payingExpensiveRent,
   });
 
   return {
@@ -177,9 +212,11 @@ function buildSummary(
     hasGuarantor: boolean;
     isFirstHome: boolean;
     interstateMakesSense: boolean;
+    livingAtHome: boolean;
+    payingExpensiveRent: boolean;
   }
 ): string {
-  const { stateData, budget, deposit, fhgEligible, hasGuarantor, isFirstHome } = ctx;
+  const { stateData, budget, deposit, fhgEligible, hasGuarantor, livingAtHome, payingExpensiveRent } = ctx;
 
   if (primary === "owner_occupied") {
     const how = fhgEligible
@@ -189,16 +226,25 @@ function buildSummary(
       : deposit >= budget * 0.2
       ? "with your 20%+ deposit — no LMI required"
       : "with your current savings";
-    return `Based on your situation, buying an owner-occupied property in ${stateData.name} looks like your best first move. You could enter the market ${how}. This gets you into your own home while taking advantage of any first home buyer benefits available in your state.`;
+    const urgency = payingExpensiveRent
+      ? " Stopping expensive rent payments sooner is a key reason to prioritise buying your own home now."
+      : "";
+    return `Based on your situation, buying an owner-occupied property in ${stateData.name} looks like your best first move. You could enter the market ${how}.${urgency} This gets you into your own home while taking advantage of any first home buyer benefits available in your state.`;
   }
 
   if (primary === "investment_interstate") {
     const states = (stateData.affordableInterstateBuying ?? []).join(", ");
-    return `A rentvesting strategy looks like a strong option for you. By purchasing an investment property in a more affordable state (consider ${states}), you can get into the property market sooner while continuing to rent where you prefer to live. This builds equity and can set you up to buy your own home later.`;
+    const livingContext = livingAtHome
+      ? " Because you're living at home with low holding costs, you're in a great position to invest before you need your own place."
+      : "";
+    return `A rentvesting strategy looks like a strong option for you.${livingContext} By purchasing an investment property in a more affordable state (consider ${states}), you can get into the market sooner while continuing to live where you are. This builds equity and sets you up to buy your own home later.`;
   }
 
   if (primary === "investment_local") {
-    return `Buying an investment property in ${stateData.name} could be a smart stepping stone. If the areas you want to live in are outside your current budget, buying a more affordable investment property gets you into the market now, building equity while you save for your ideal home.`;
+    const livingContext = livingAtHome && hasGuarantor
+      ? " Living at home and having a guarantor puts you in a powerful position — you can use your low expenses and guarantor support to invest now and build equity before you need to move out."
+      : "";
+    return `Buying an investment property in ${stateData.name} could be a smart stepping stone.${livingContext} Getting into the market now builds equity while you save for your ideal home.`;
   }
 
   return "Based on your answers, speak to a mortgage broker to explore your options in detail.";
