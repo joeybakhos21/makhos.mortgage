@@ -131,7 +131,9 @@ export default function ResultCard({ result, onRestart }: Props) {
           Book a free strategy session and we&apos;ll walk through your exact numbers together.
         </p>
         <a
-          href="mailto:contact@makhos.mortgage"
+          href="https://calendly.com/jbakhos/30min"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-block bg-white text-indigo-700 font-semibold px-6 py-3 rounded-xl hover:bg-indigo-50 transition-colors text-sm shadow"
         >
           Book a Free Consultation

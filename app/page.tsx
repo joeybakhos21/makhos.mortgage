@@ -7,7 +7,7 @@ export default function Home() {
       <header className="border-b border-slate-200 bg-white/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">Makhos Mortgage</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">Bakhos Mortgage</p>
             <p className="text-sm font-medium text-slate-700">First Home Buyer Guide</p>
           </div>
           <div className="text-2xl">🏠</div>
@@ -23,7 +23,7 @@ export default function Home() {
           Answer a few questions about your deposit, income, and goals — we&apos;ll show you what&apos;s possible and which government schemes you may qualify for.
         </p>
         <div className="mt-4 flex flex-wrap gap-2 justify-center text-xs">
-          {["5% Deposit Scheme", "FHOG Grants", "Guarantor Options", "State-specific Caps", "Rentvesting"].map((tag) => (
+          {["5% Deposit Scheme", "Guarantor Options", "State-specific Caps", "Stamp Duty Savings", "Rentvesting"].map((tag) => (
             <span key={tag} className="px-2.5 py-1 rounded-full bg-indigo-100 text-indigo-700 font-medium">
               {tag}
             </span>
@@ -38,7 +38,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="text-center py-8 text-xs text-slate-400 px-4">
-        <p>© {new Date().getFullYear()} Makhos Mortgage. Australian Credit Licence holder.</p>
+        <p>© {new Date().getFullYear()} Bakhos Mortgage. Australian Credit Licence holder.</p>
         <p className="mt-1">This tool is a guide only. Always seek independent financial advice.</p>
       </footer>
     </main>

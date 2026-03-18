@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "First Home Buyer Quiz | Makhos Mortgage",
-  description: "Find out what you can buy with your current deposit, government grants, and guarantor options. State-specific results for Australian first home buyers.",
+  title: "First Home Buyer Quiz | Bakhos Mortgage",
+  description: "Find out what you can buy with your current deposit, the 5% First Home Guarantee, and guarantor options. State-specific results for Australian first home buyers.",
 };
 
 export default function RootLayout({
