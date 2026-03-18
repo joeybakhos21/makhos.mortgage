@@ -25,7 +25,7 @@ export const QUESTIONS: Record<QuestionId, Question> = {
   state: {
     id: "state",
     title: "Which state or territory are you in?",
-    subtitle: "Your location affects property price caps, grants, and stamp duty concessions.",
+    subtitle: "Your location determines the First Home Guarantee property price cap and stamp duty concessions.",
     type: "single",
     options: [
       { value: "NSW", label: "New South Wales", icon: "🏙️" },
@@ -68,7 +68,7 @@ export const QUESTIONS: Record<QuestionId, Question> = {
   buyingWith: {
     id: "buyingWith",
     title: "Are you buying alone or with someone?",
-    subtitle: "Joint applications may increase borrowing power and access higher income caps for some schemes.",
+    subtitle: "Joint applications can significantly increase your borrowing power and combined deposit.",
     type: "single",
     options: [
       { value: "sole", label: "Buying on my own", icon: "🧍" },
@@ -81,7 +81,7 @@ export const QUESTIONS: Record<QuestionId, Question> = {
   income: {
     id: "income",
     title: "What is your gross annual income?",
-    subtitle: "For joint applications, enter your combined household income before tax.",
+    subtitle: "For joint applications, enter your combined household income before tax. This helps estimate your borrowing capacity.",
     type: "currency",
     min: 30000,
     max: 500000,

@@ -1,5 +1,5 @@
 import { QuestionId, AnswerValue, RecommendationResult, EligibleScheme, State, StateData } from "@/types/quiz";
-import { STATE_DATA, INCOME_CAPS, formatCurrency } from "./stateData";
+import { STATE_DATA, formatCurrency } from "./stateData";
 
 export function generateRecommendation(
   answers: Partial<Record<QuestionId, AnswerValue>>
@@ -8,8 +8,6 @@ export function generateRecommendation(
   const stateData = STATE_DATA[state];
   const isFirstHome = answers.firstHomeBuyer === "yes";
   const isCitizen = answers.citizenship === "citizen" || answers.citizenship === "pr";
-  const buyingWith = answers.buyingWith as string;
-  const income = Number(answers.income) || 0;
   const deposit = Number(answers.deposit) || 0;
   const budget = Number(answers.propertyBudget) || 0;
   const hasGuarantor = answers.hasGuarantor === "yes";
@@ -20,39 +18,51 @@ export function generateRecommendation(
   const rentOk = answers.rentWhileBuying === "yes" || answers.rentWhileBuying === "maybe";
   const employment = answers.employmentStatus as string;
 
-  const isJoint = buyingWith === "partner";
-  const incomeCap = isJoint ? INCOME_CAPS.joint : INCOME_CAPS.single;
-  const incomeEligible = income <= incomeCap;
-
   const schemes: EligibleScheme[] = [];
   const details: string[] = [];
 
   // ── First Home Guarantee (5% deposit, no LMI) ──────────────────────────────
+  // No income caps since 1 July 2024. Eligibility: first home buyer, citizen/PR,
+  // purchase price within state cap, and at least 5% deposit saved.
   const fhgCap = stateData.fhgCapCity;
-  const fhgEligible =
-    isFirstHome && isCitizen && incomeEligible && budget <= fhgCap && deposit >= budget * 0.05;
+  const fhgCapRegional = stateData.fhgCapRegional;
+  const has5PctDeposit = budget > 0 && deposit >= budget * 0.05;
+  const fhgEligible = isFirstHome && isCitizen && budget <= fhgCap && has5PctDeposit;
+  const fhgEligibleRegional = isFirstHome && isCitizen && budget <= fhgCapRegional && has5PctDeposit;
 
   if (fhgEligible) {
     schemes.push({
-      name: "First Home Guarantee",
-      description: `Buy with just 5% deposit — the government guarantees 15% so you avoid Lenders Mortgage Insurance. Property must be under ${formatCurrency(fhgCap)} in ${stateData.name}.`,
-      amount: "No LMI saving (typically $10,000–$30,000+)",
+      name: "First Home Guarantee (5% Deposit Scheme)",
+      description:
+        `Buy with just a 5% deposit — the federal government guarantees the remaining 15%, meaning you pay zero Lenders Mortgage Insurance (LMI). ` +
+        `Available on properties up to ${formatCurrency(fhgCap)} in ${stateData.name} (or ${formatCurrency(fhgCapRegional)} in regional areas). ` +
+        `No income test applies. You must move in as your principal place of residence.`,
+      amount: `LMI waived — saves $10,000–$35,000+ depending on your loan`,
     });
-    details.push(`✅ Eligible for First Home Guarantee — purchase up to ${formatCurrency(fhgCap)}`);
-  } else if (isFirstHome && isCitizen && !incomeEligible) {
-    details.push(`⚠️ Your income (${formatCurrency(income)}) exceeds the First Home Guarantee cap of ${formatCurrency(incomeCap)} for ${isJoint ? "joint" : "single"} applicants.`);
+    details.push(
+      `✅ You appear eligible for the First Home Guarantee — your target price of ${formatCurrency(budget)} is within the ${stateData.name} cap of ${formatCurrency(fhgCap)}.`
+    );
+    details.push(
+      `✅ With ${formatCurrency(deposit)} saved you meet the minimum 5% deposit threshold of ${formatCurrency(Math.ceil(budget * 0.05))} for this purchase price.`
+    );
   } else if (isFirstHome && isCitizen && budget > fhgCap) {
-    details.push(`⚠️ Your target price (${formatCurrency(budget)}) exceeds the ${stateData.name} First Home Guarantee cap of ${formatCurrency(fhgCap)}.`);
-  }
-
-  // ── First Home Owner Grant ─────────────────────────────────────────────────
-  if (isFirstHome && isCitizen && stateData.fhogAmount) {
-    schemes.push({
-      name: `First Home Owner Grant – ${stateData.name}`,
-      description: stateData.fhogCondition ?? `Cash grant for first home buyers.`,
-      amount: formatCurrency(stateData.fhogAmount),
-    });
-    details.push(`✅ Potentially eligible for the ${formatCurrency(stateData.fhogAmount)} First Home Owner Grant (new builds only).`);
+    details.push(
+      `⚠️ Your target price of ${formatCurrency(budget)} exceeds the First Home Guarantee cap of ${formatCurrency(fhgCap)} in ${stateData.name}. ` +
+        `Consider whether a lower purchase price would bring you within the cap, or explore a guarantor to avoid LMI on a higher-priced purchase.`
+    );
+    if (budget <= fhgCapRegional) {
+      details.push(`ℹ️ If buying in a regional area of ${stateData.name}, the cap is ${formatCurrency(fhgCapRegional)} — your budget may qualify.`);
+    }
+  } else if (isFirstHome && isCitizen && !has5PctDeposit && budget > 0) {
+    const required = Math.ceil(budget * 0.05);
+    details.push(
+      `⚠️ You need at least ${formatCurrency(required)} (5% of ${formatCurrency(budget)}) to access the First Home Guarantee. ` +
+        `You currently have ${formatCurrency(deposit)} — a gap of ${formatCurrency(required - deposit)}.`
+    );
+  } else if (!isFirstHome) {
+    details.push(`ℹ️ The First Home Guarantee is only available to first home buyers who have never owned residential property in Australia.`);
+  } else if (!isCitizen) {
+    details.push(`ℹ️ The First Home Guarantee requires Australian citizenship or permanent residency.`);
   }
 
   // ── Stamp Duty ─────────────────────────────────────────────────────────────

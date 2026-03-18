@@ -54,8 +54,6 @@ export interface StateData {
   name: string;
   fhgCapCity: number;
   fhgCapRegional: number;
-  fhogAmount: number | null;
-  fhogCondition: string | null;
   stampDutyExemptionCap: number | null;
   stampDutyConcessionCap: number | null;
   stampDutyNote: string;
